@@ -21,6 +21,13 @@ describe('zod v4 schema helpers', () => {
     expect(getBaseRules(schema)).toBeInstanceOf(ZodString);
   });
 
+  it('preserves array schemas when resolving base rules', () => {
+    const schema = z.array(z.string().optional()).length(2);
+
+    expect(getBaseRules(schema)).toBe(schema);
+    expect(schema.safeParse([undefined, '']).success).toBe(true);
+  });
+
   it('returns undefined when a schema rejects undefined', () => {
     expect(getDefaultValueInZodStack(z.string())).toBeUndefined();
   });

@@ -4,11 +4,7 @@ import { toRaw } from 'vue';
 
 import { isObject, isString } from '@vben-core/shared/utils';
 
-import { ZodPipe } from 'zod';
-
-type UnwrappableZodType = ZodType & {
-  unwrap?: () => ZodType;
-};
+import { ZodDefault, ZodOptional, ZodPipe } from 'zod';
 
 /**
  * Get the lowest level Zod type.
@@ -22,9 +18,8 @@ export function getBaseRules(schema?: null | string | ZodType): null | ZodType {
     return getBaseRules(rawSchema.in as ZodType);
   }
 
-  const unwrappedSchema = (rawSchema as UnwrappableZodType).unwrap?.();
-  if (unwrappedSchema && unwrappedSchema !== rawSchema) {
-    return getBaseRules(unwrappedSchema);
+  if (rawSchema instanceof ZodDefault || rawSchema instanceof ZodOptional) {
+    return getBaseRules(rawSchema.unwrap() as ZodType);
   }
 
   return rawSchema;
